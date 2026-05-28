@@ -7,3 +7,4 @@ anthropic
 fpdf2
 authlib
 flask-cors
+reportlab
