@@ -45,52 +45,52 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
-      <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl p-10">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950">
+      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-10">
         <Link to="/" className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
             LA
           </div>
           <div>
-            <h1 className="font-bold text-xl tracking-tight">LogAnalyzer</h1>
-            <p className="text-sm text-slate-500">Enterprise Log Analytics</p>
+            <h1 className="font-bold text-xl tracking-tight text-slate-100">CloudLog SIEM</h1>
+            <p className="text-sm text-slate-500">Security Analytics Platform</p>
           </div>
         </Link>
-        <h2 className="text-2xl font-bold mb-2">Welcome back</h2>
-        <p className="text-slate-500 mb-7">Sign in to access your dashboard</p>
+        <h2 className="text-2xl font-bold mb-2 text-slate-100">Welcome back</h2>
+        <p className="text-slate-400 mb-7">Sign in to access your dashboard</p>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg px-4 py-3 mb-5 flex items-center gap-2 text-sm">
+          <div className="bg-red-950/30 border border-red-900/50 text-red-400 rounded-lg px-4 py-3 mb-5 flex items-center gap-2 text-sm">
             ⚠ {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-5">
-            <label className="block text-sm font-medium text-slate-700 mb-2">Username</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Username</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+              className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 transition text-slate-100"
               required
               autoFocus
             />
           </div>
           <div className="mb-6">
-            <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+              className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 transition text-slate-100"
               required
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition active:scale-[0.98]"
+            className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-semibold rounded-lg transition active:scale-[0.98]"
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
