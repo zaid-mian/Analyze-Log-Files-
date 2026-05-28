@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LogAnalyzer — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: var(--shadow-lg);
+      padding: 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .logo-text h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .form-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .flash-msg {
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius);
+      color: var(--danger);
+      font-size: 13px;
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 15px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn-login {
+      width: 100%;
+      margin-top: 8px;
+      padding: 12px 20px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      font-family: inherit;
+    }
+
+    .btn-login:hover { background: var(--accent-hover); }
+    .btn-login:active { transform: scale(0.98); }
+
+    .footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo">
+        <div class="logo-icon">LA</div>
+        <div class="logo-text">
+          <h1>LogAnalyzer</h1>
+          <p>Enterprise Log Analytics</p>
+        </div>
+      </div>
+
+      <h2 class="form-title">Welcome back</h2>
+      <p class="form-subtitle">Sign in to access your dashboard</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+          <div class="flash-msg">⚠ {{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <form method="POST">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" name="username" id="username" autocomplete="username" required autofocus />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn-login">Sign in</button>
+      </form>
+
+      <div class="mt-6 text-center text-sm text-slate-500">Secure connection • Protected data</div>
+    </div>
+  </div>
+</body>
+</html>

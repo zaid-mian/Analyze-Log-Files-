@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LogAnalyzer — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .nav-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-user {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .nav-user span {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .btn-nav {
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-upload {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-upload:hover { background: var(--accent-hover); }
+
+    .btn-logout {
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .btn-logout:hover { color: var(--text); background: var(--surface-2); }
+
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .page-header {
+      margin-bottom: 28px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .page-title-wrap {
+      flex: 1;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--success);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .flash {
+      margin-bottom: 24px;
+    }
+
+    .flash-success {
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: var(--radius);
+      color: var(--success);
+      font-size: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .flash-error {
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius);
+      color: var(--danger);
+      font-size: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1200px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow);
+      border-color: #cbd5e1;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+    .stat-card:nth-child(5) { animation-delay: 0.25s; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .stat-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .stat-accent { color: var(--accent); }
+    .stat-warn { color: var(--warn); }
+    .stat-danger { color: var(--danger); }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1200px) {
+      .chart-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .chart-grid { grid-template-columns: 1fr; }
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeIn 0.5s ease-out 0.3s forwards;
+      opacity: 0;
+    }
+
+    .chart-card.wide {
+      grid-column: span 2;
+    }
+
+    .chart-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .bench-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1024px) {
+      .bench-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .bench-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeIn 0.5s ease-out 0.35s forwards;
+      opacity: 0;
+    }
+
+    .bench-step {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .bench-time {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .bench-unit {
+      font-size: 13px;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .bench-bar {
+      height: 4px;
+      background: var(--surface-2);
+      margin-top: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bench-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 1s ease;
+    }
+
+    .speed-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 18px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeIn 0.5s ease-out 0.32s forwards;
+      opacity: 0;
+    }
+
+    .speed-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .speed-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .speed-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .speed-value span {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .speed-track-wrap {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .speed-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .speed-track {
+      flex: 1;
+      height: 6px;
+      background: var(--surface-2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .speed-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #6366f1);
+      border-radius: 999px;
+    }
+
+    .speed-details {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 900px) {
+      .insights-grid { grid-template-columns: 1fr; }
+    }
+
+    .insight-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 18px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+      animation: fadeIn 0.5s ease-out 0.4s forwards;
+      opacity: 0;
+    }
+
+    .insight-card:hover {
+      box-shadow: var(--shadow);
+      border-color: #cbd5e1;
+    }
+
+    .insight-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .icon-security {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .icon-performance {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+
+    .icon-traffic {
+      background: rgba(37, 99, 235, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.15);
+    }
+
+    .icon-anomaly {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+    }
+
+    .insight-body { flex: 1; }
+
+    .insight-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .insight-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .sev-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sev-high {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .sev-medium {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warn);
+    }
+
+    .sev-low {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .type-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+    }
+
+    .insight-detail {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      animation: fadeIn 0.5s ease-out 0.45s forwards;
+      opacity: 0;
+    }
+
+    .table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .table-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .table-count {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--surface-2);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover {
+      background: var(--surface-2);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      padding: 14px 20px;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    td.fn {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    td.ts {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    td.by {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin: 2px 4px 2px 0;
+    }
+
+    .be {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .bh {
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.15);
+    }
+
+    .export-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-export {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      transition: all 0.2s;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+
+    .btn-csv {
+      background: rgba(16, 185, 129, 0.08);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+
+    .btn-csv:hover {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-pdf {
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-pdf:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .empty-state a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .empty-state a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">LA</div>
+    <div class="nav-title">LogAnalyzer</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-user">session: <span>{{ user.id }}</span></div>
+    <a href="/upload" class="btn-nav btn-upload">+ Upload Log</a>
+    <a href="/logout" class="btn-nav btn-logout">Logout</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="page-title-wrap">
+      <h1 class="page-title">System Overview</h1>
+      <p class="page-subtitle">Analytics dashboard for your log analysis</p>
+    </div>
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      LIVE
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}<div class="flash">
+      {% for cat, msg in messages %}
+        <div class="flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    </div>{% endif %}
+  {% endwith %}
+
+  <!-- STAT CARDS -->
+  {% set total_404 = namespace(v=0) %}
+  {% set total_500 = namespace(v=0) %}
+  {% set total_lines = namespace(v=0) %}
+  {% for row in results %}
+    {% if row.result and 'HTTP_404' in row.result %}{% set total_404.v = total_404.v + row.result['HTTP_404'] %}{% endif %}
+    {% if row.result and 'HTTP_500' in row.result %}{% set total_500.v = total_500.v + row.result['HTTP_500'] %}{% endif %}
+    {% if row.benchmarks and row.benchmarks.total_lines %}{% set total_lines.v = total_lines.v + row.benchmarks.total_lines %}{% endif %}
+  {% endfor %}
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Files Analyzed</div>
+      <div class="stat-value stat-accent">{{ results|length }}</div>
+      <div class="stat-sub">logs processed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Lines Processed</div>
+      <div class="stat-value">{{ "{:,}".format(total_lines.v) }}</div>
+      <div class="stat-sub">via MapReduce</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total HTTP 404</div>
+      <div class="stat-value stat-warn">{{ total_404.v }}</div>
+      <div class="stat-sub">not found errors</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total HTTP 500</div>
+      <div class="stat-value stat-danger">{{ total_500.v }}</div>
+      <div class="stat-sub">server errors</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">MapReduce Engine</div>
+      <div class="stat-value stat-accent" style="font-size:20px;padding-top:10px;">● ONLINE</div>
+      <div class="stat-sub">parallel workers active</div>
+    </div>
+  </div>
+
+  {% if results %}
+  {% set latest = results[0] %}
+  {% set lr = latest.result or {} %}
+  {% set lb = latest.benchmarks or {} %}
+
+  <!-- BENCHMARK PIPELINE -->
+  <div class="section-label">// MapReduce Pipeline — Latest Run</div>
+  {% set t_total = lb.get('t_total', 0.001) %}
+  <div class="bench-grid">
+    {% for step, key, color in [('01 SPLIT','t_split','#10b981'),('02 MAP','t_map','#2563eb'),('03 SHUFFLE','t_shuffle','#6366f1'),('04 REDUCE','t_reduce','#f59e0b')] %}
+    {% set t = lb.get(key, 0) %}
+    <div class="bench-card">
+      <div class="bench-step">{{ step }}</div>
+      <div><span class="bench-time">{{ t }}</span><span class="bench-unit">sec</span></div>
+      <div class="bench-bar"><div class="bench-fill" style="width:{{ [((t / t_total) * 100)|int, 100]|min }}%;background:{{ color }};"></div></div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- SPEED STAT -->
+  <div class="speed-card">
+    <div class="speed-row">
+      <div class="speed-label">PROCESSING SPEED</div>
+      <div class="speed-value">{{ "{:,}".format(lb.get('lines_per_sec',0)|int) }} <span>lines/sec</span></div>
+      <div class="speed-track-wrap">
+        <div class="speed-bar">
+          <span>0</span>
+          <div class="speed-track">
+            <div class="speed-fill" style="width:{{ [((lb.get('lines_per_sec',0) / 50000) * 100)|int, 100]|min }}%;"></div>
+          </div>
+          <span>50k</span>
+        </div>
+      </div>
+      <div class="speed-details">{{ lb.get('num_workers',0) }} workers &nbsp;|&nbsp; {{ lb.get('num_chunks',0) }} chunks &nbsp;|&nbsp; {{ "{:,}".format(lb.get('total_lines',0)) }} lines</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="section-label">// Analytics — Latest File: {{ latest.filename }}</div>
+  <div class="chart-grid">
+    <div class="chart-card wide">
+      <div class="chart-title">// Traffic by Hour</div>
+      <canvas id="hourChart" height="120"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">// HTTP Status Distribution</div>
+      <canvas id="errorChart" height="120"></canvas>
+    </div>
+    <div class="chart-card wide">
+      <div class="chart-title">// HTTP Methods Breakdown</div>
+      <canvas id="methodChart" height="120"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">// Response Size Categories</div>
+      <canvas id="sizeChart" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- AI INSIGHTS -->
+  {% if latest.insights %}
+  <div class="section-label">// AI-Powered Insights</div>
+  <div class="insights-grid">
+    {% for ins in latest.insights %}
+    {% set itype = ins.get('type','performance') %}
+    {% set icons = {'security':'🔒','performance':'⚡','traffic':'📊','anomaly':'⚠️'} %}
+    {% set iclasses = {'security':'icon-security','performance':'icon-performance','traffic':'icon-traffic','anomaly':'icon-anomaly'} %}
+    <div class="insight-card">
+      <div class="insight-icon {{ iclasses.get(itype,'icon-performance') }}">{{ icons.get(itype,'⚡') }}</div>
+      <div class="insight-body">
+        <div class="insight-header">
+          <div class="insight-title">{{ ins.get('title','Insight') }}</div>
+          <span class="sev-badge sev-{{ ins.get('severity','low') }}">{{ ins.get('severity','low') }}</span>
+          <span class="type-badge">{{ itype }}</span>
+        </div>
+        <div class="insight-detail">{{ ins.get('detail','') }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+
+  <!-- HISTORY TABLE -->
+  <div class="section-label">// Analysis History</div>
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">// All Records</div>
+      <div class="table-count">{{ results|length }} entries</div>
+    </div>
+    {% if results %}
+    <table>
+      <thead><tr>
+        <th>Filename</th><th>HTTP Errors</th><th>Peak Hour</th>
+        <th>Lines</th><th>Speed</th><th>Uploaded By</th><th>Timestamp</th><th>Export</th>
+      </tr></thead>
+      <tbody>
+      {% for row in results %}
+      {% set r = row.result or {} %}
+      {% set b = row.benchmarks or {} %}
+      {% set hours = [] %}
+      {% for k,v in r.items() if k.startswith('Hour_') %}{% set _=hours.append((k,v)) %}{% endfor %}
+      <tr>
+        <td class="fn">{{ row.filename }}</td>
+        <td>{% for k,v in r.items() if k.startswith('HTTP_') and (k[5]=='4' or k[5]=='5') %}
+          <span class="badge be">{{ k }}: {{ v }}</span>{% else %}<span style="color:var(--muted);font-size:13px;">—</span>
+        {% endfor %}</td>
+        <td>{% if hours %}{% set top=(hours|sort(attribute='1',reverse=True))[0] %}
+          <span class="badge bh">{{ top[0].replace('Hour_','') }}:00 ({{ top[1] }})</span>
+        {% else %}—{% endif %}</td>
+        <td style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:13px;">{{ "{:,}".format(b.get('total_lines',0)) }}</td>
+        <td style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:13px;color:var(--accent);font-weight:500;">{{ "{:,}".format(b.get('lines_per_sec',0)|int) }}/s</td>
+        <td class="by">{{ row.uploaded_by }}</td>
+        <td class="ts">{{ row.created_at.strftime('%Y-%m-%d %H:%M') if row.created_at else '—' }}</td>
+        <td><div class="export-btns">
+          <a href="/export/csv/{{ row.id }}" class="btn-export btn-csv">CSV</a>
+          <a href="/export/pdf/{{ row.id }}" class="btn-export btn-pdf">PDF</a>
+        </div></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No log files analyzed yet.<br><br><a href="/upload">Upload your first .log file →</a></div>
+    {% endif %}
+  </div>
+</main>
+
+{% if results %}
+<script>
+const lr = {{ results[0].result | tojson }};
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: {
+      display: false
+    },
+    tooltip: {
+      backgroundColor: '#0f172a',
+      titleColor: '#fff',
+      bodyColor: '#cbd5e1',
+      borderColor: '#334155',
+      borderWidth: 1,
+      padding: 12,
+      titleFont: {
+        family: 'Inter',
+        size: 13,
+        weight: '600'
+      },
+      bodyFont: {
+        family: 'Inter',
+        size: 13
+      }
+    }
+  },
+  scales: {
+    x: {
+      ticks: {
+        color: '#64748b',
+        font: {
+          family: 'Inter',
+          size: 12
+        }
+      },
+      grid: {
+        color: '#e2e8f0'
+      }
+    },
+    y: {
+      ticks: {
+        color: '#64748b',
+        font: {
+          family: 'Inter',
+          size: 12
+        }
+      },
+      grid: {
+        color: '#e2e8f0'
+      }
+    }
+  }
+};
+
+// Hour chart
+const hours = Array.from({length:24},(_,i)=>`Hour_${String(i).padStart(2,'0')}`);
+new Chart(document.getElementById('hourChart'),{
+  type:'line',
+  data:{
+    labels: hours.map(h=>h.replace('Hour_','')+':00'),
+    datasets:[{
+      data: hours.map(h=>lr[h]||0),
+      borderColor:'#2563eb',
+      backgroundColor:'rgba(37, 99, 235, 0.08)',
+      borderWidth:2,
+      pointRadius:3,
+      pointBackgroundColor:'#2563eb',
+      fill:true,
+      tension:.4
+    }]
+  },
+  options:{...chartDefaults}
+});
+
+// Error chart
+const eKeys=Object.keys(lr).filter(k=>k.startsWith('HTTP_'));
+const eColors={
+  'HTTP_200':'#10b981','HTTP_201':'#059669','HTTP_301':'#2563eb','HTTP_302':'#1d4ed8',
+  'HTTP_400':'#f59e0b','HTTP_401':'#d97706','HTTP_403':'#b45309','HTTP_404':'#f59e0b',
+  'HTTP_500':'#ef4444','HTTP_502':'#dc2626','HTTP_503':'#b91c1c','HTTP_504':'#991b1b'
+};
+new Chart(document.getElementById('errorChart'),{
+  type:'bar',
+  data:{
+    labels:eKeys,
+    datasets:[{
+      data:eKeys.map(k=>lr[k]),
+      backgroundColor:eKeys.map(k=>(eColors[k]||'#64748b')+'22'),
+      borderColor:eKeys.map(k=>eColors[k]||'#64748b'),
+      borderWidth:1
+    }]
+  },
+  options:{
+    ...chartDefaults,
+    indexAxis:'y'
+  }
+});
+
+// Method chart
+const mKeys=Object.keys(lr).filter(k=>k.startsWith('METHOD_'));
+const mColors=['#10b981','#2563eb','#6366f1','#f59e0b','#ef4444','#f97316'];
+new Chart(document.getElementById('methodChart'),{
+  type:'bar',
+  data:{
+    labels:mKeys.map(k=>k.replace('METHOD_','')),
+    datasets:[{
+      data:mKeys.map(k=>lr[k]),
+      backgroundColor:mColors.map(c=>c+'33'),
+      borderColor:mColors,
+      borderWidth:1
+    }]
+  },
+  options:{...chartDefaults}
+});
+
+// Size chart
+const sKeys=['SIZE_small','SIZE_medium','SIZE_large'];
+const sLabels=['< 1KB','1KB–10KB','> 10KB'];
+new Chart(document.getElementById('sizeChart'),{
+  type:'doughnut',
+  data:{
+    labels:sLabels,
+    datasets:[{
+      data:sKeys.map(k=>lr[k]||0),
+      backgroundColor:['rgba(16, 185, 129, 0.2)','rgba(37, 99, 235, 0.2)','rgba(99, 102, 241, 0.2)'],
+      borderColor:['#10b981','#2563eb','#6366f1'],
+      borderWidth:1
+    }]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:true,
+    plugins:{
+      legend:{
+        display:true,
+        position:'bottom',
+        labels:{
+          color:'#64748b',
+          font:{
+            family:'Inter',
+            size:12
+          },
+          boxWidth:10,
+          padding:12
+        }
+      },
+      tooltip: chartDefaults.plugins.tooltip
+    }
+  }
+});
+
+// Live refresh every 30s
+setInterval(()=>{
+  fetch('/api/results').then(r=>r.json()).then(data=>{
+    // subtle live indicator update
+    document.querySelector('.live-dot').style.background='#fff';
+    setTimeout(()=>document.querySelector('.live-dot').style.background='#10b981',300);
+  });
+},30000);
+</script>
+{% endif %}
+</body>
+</html>

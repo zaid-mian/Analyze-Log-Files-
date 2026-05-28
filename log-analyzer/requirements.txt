@@ -1,0 +1,9 @@
+flask
+flask-login
+psycopg2-binary
+python-dotenv
+gunicorn
+anthropic
+fpdf2
+authlib
+flask-cors
