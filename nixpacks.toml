@@ -1,5 +1,0 @@
-[phases.setup]
-  cmds = ["cd log-analyzer && pip install -r requirements.txt"]
-
-[start]
-  cmd = "cd log-analyzer && gunicorn app:app"
