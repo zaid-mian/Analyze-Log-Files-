@@ -43,7 +43,7 @@ A powerful log analyzer with a modern interface, built with Flask (backend) and 
 
 2. **Backend Setup**:
    ```bash
-   cd backend
+   cd log-analyzer
    python -m venv venv
    # Windows:
    venv\Scripts\activate
@@ -58,7 +58,7 @@ A powerful log analyzer with a modern interface, built with Flask (backend) and 
 
 3. **Frontend Setup**:
    ```bash
-   cd ../frontend
+   cd ../client-react
    npm install
    npm run dev
    ```

@@ -1,0 +1,11 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "nixpacks": {
+      "buildCommand": ""
+    }
+  },
+  "deploy": {
+    "startCommand": "cd log-analyzer && gunicorn app:app"
+  }
+}
